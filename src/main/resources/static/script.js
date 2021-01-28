@@ -14,12 +14,17 @@ angular.module("projetoTecnico").config(function($stateProvider, $urlRouterProvi
         });
 
 });
-angular.module("projetoTecnico").controller("cadastroController",['$window', '$scope','ClienteService', function($window, $scope, ClienteService){
+angular.module("projetoTecnico").controller("cadastroController",['$window', '$scope','UserCRUDService', function($window, $scope, UserCRUDService){
     $scope.title = "Cadastro de Clientes";
     $scope.cliente={telefones:[{}], enderecos:[] };
     $scope.clientes= [];
     $scope.endereco= {};
 
+    $scope.apagarClientes = function (clientes){
+        $scope.cliente = clientes.filter(function(cliente){
+            if (!cliente.selecionado) return cliente;
+        });
+    };
     $scope.isClienteSelecionado = function(clientes){
         return clientes.some(function (cliente){
             return cliente.selecionado;
@@ -28,7 +33,7 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
     $scope.addCliente = function () {
         if ($scope.cliente != null && $scope.cliente.nome) {
             $scope.cliente.telefones[0].principal = true;
-            ClienteService.addCliente($scope.cliente)
+            UserCRUDService.addCliente($scope.cliente)
                 .then (function success(response){
                         $scope.listaClientes();
                         $scope.message = 'User added!';
@@ -47,16 +52,15 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
         }
 
     }
-
     $scope.updateUser = function () {
-        ClienteService.updateUser($scope.cliente.id,
+        UserCRUDService.updateUser($scope.cliente.id,
             $scope.cliente.name, $scope.cliente.cpfCnpj)
             .then(function success(response) {
-                    $scope.message = 'Cliente atualizado!';
+                    $scope.message = 'User data updated!';
                     $scope.errorMessage = '';
                 },
                 function error(response) {
-                    $scope.errorMessage = 'Erro ao atualizar cadastro do cliente!';
+                    $scope.errorMessage = 'Error updating user!';
                     $scope.message = '';
                 });
     }
@@ -67,7 +71,7 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
         });
         selecionados.forEach(function(data) {
 
-            ClienteService.deleteCliente(data)
+            UserCRUDService.deleteCliente(data)
                 .then (function success(response) {
                         $scope.message = 'Cliente Deletado!';
                         $scope.User = null;
@@ -81,7 +85,7 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
         });
     }
     $scope.listaClientes = function (){
-        ClienteService.listaClientes()
+        UserCRUDService.listaClientes()
             .then(function success(response) {
                     $scope.clientes = response.data;
                     $scope.message='';
@@ -89,7 +93,7 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
                 },
                 function error (response) {
                     $scope.message='';
-                    $scope.errorMessage = 'Erro ao listar os clientes!';
+                    $scope.errorMessage = 'Error getting users!';
                 });
     }
     $scope.addEndereco = function (endereco){
@@ -127,7 +131,11 @@ angular.module("projetoTecnico").controller("cadastroController",['$window', '$s
 
 }]);
 
-angular.module("projetoTecnico").service('ClienteService', [ '$http', function($http) {
+angular.module("projetoTecnico").controller("loginController", function ($scope){
+    $scope.message = "funcionou !!!!"
+});
+
+angular.module("projetoTecnico").service('UserCRUDService', [ '$http', function($http) {
     this.addCliente = function addCliente(cliente) {
         return $http({
             method : 'POST',
@@ -152,7 +160,37 @@ angular.module("projetoTecnico").service('ClienteService', [ '$http', function($
             url : '/clientes/ ' + cliente.id
         })
     }
+
+    this.loginUsuario = function loginUsuario(usuario) {
+        return $http({
+            method : 'POST',
+            url : '/oauth/token',
+
+        })
+    }
 } ]);
+
+angular.module("projetoTecnico").controller('loginController', ['$scope','UserCRUDService',
+    function ($scope,UserCRUDService) {
+        $scope.getUser = function () {
+            UserCRUDService.getUser($scope.user.id)
+                .then(function success(response) {
+                        $scope.clientes = response.data;
+                        $scope.clientes.id = id;
+                        $scope.message='';
+                        $scope.errorMessage = '';
+                    },
+                    function error (response) {
+                        $scope.message = '';
+                        if (response.status === 404){
+                            $scope.errorMessage = 'User not found!';
+                        }
+                        else {
+                            $scope.errorMessage = "Error getting user!";
+                        }
+                    });
+        };
+    }]);
 
 
 
