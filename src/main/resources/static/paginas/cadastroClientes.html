@@ -1,0 +1,97 @@
+<div ng-controller="cadastroController">
+<div class="jumbotron ">
+    <div class="container">
+        <h2 ng-bind="title"></h2>
+        <!--        Formulário para preenchimento-->
+        <form name="clienteForm">
+            <div class="form-group">
+                <label>Nome Completo *</label>
+                <input class="form-control" type="text" ng-model="cliente.nome" ng-required="true" >
+            </div>
+            <div class="form-group">
+                <label>CPF/CNPJ *</label>
+                <input class="form-control" type="text" ng-model="cliente.cpfCnpj" size="4" maxlength="14" ng-required="true">
+            </div>
+            <div class="form-group">
+                <label>Telefone *</label>
+                <div class="row">
+                    <div class="col-md-5"  ng-repeat="telefone in cliente.telefones track by $index" >
+                        <input class="form-control" type="text" placeholder="{{$index <= 0 ? 'Telefone Principal' : 'Telefone '+ ($index+1)}}" ng-model="telefone.telefone" >
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-success" ng-click="cliente.telefones.push({})">
+                            Adicionar
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Endereço *</label>
+                <div class="row">
+                    <div class="col-md-6"  >
+                        <input class="form-control" type="text" placeholder="logradouro" ng-model="endereco.logradouro" >
+                    </div>
+                    <div class="col-md-3"  >
+                        <input class="form-control" type="text" placeholder="Numero" ng-model="endereco.numero" >
+                    </div>
+                    <div class="col-md-3"  >
+                        <input class="form-control" type="text" placeholder="Complemento" ng-model="endereco.complemento" >
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4" >
+                        <input class="form-control" type="text" placeholder="Bairro" ng-model="endereco.bairro" >
+                    </div>
+                    <div class="col-md-4" >
+                        <input class="form-control" type="text" placeholder="Cidade" ng-model="endereco.cidade">
+                    </div>
+                    <div class="col-md-2" >
+                        <input class="form-control" type="text" placeholder="UF" size="4" ng-model="endereco.uf">
+                    </div>
+                    <div class="col-md-2" >
+                        <input class="form-control" type="text" placeholder="Cep" ng-model="endereco.cep">
+                    </div>
+                    {{enderecos}}
+                    <div class="col-md-3">
+                        <button class="btn btn-success" ng-click="addEndereco(endereco)">
+                            Adicionar
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <button class="btn btn-primary btn-block" ng-click="addCliente()" ng-disabled="!cliente || cliente.enderecos.length<=0">Adicionar novo cliente</button>
+
+
+        <button class="btn btn-danger btn-block" ng-click="deleteCliente(clientes)" ng-if="isClienteSelecionado(clientes)">Apagar Cliente</button>
+
+        <table ng-show="clientes.length>0" class="table">
+            <h4>Listagem</h4>
+            <tr>
+                <th></th>
+                <th>Nome</th>
+                <th>CPF/CNPJ</th>
+                <th>Telefone</th>
+                <th>Endreço</th>
+            </tr>
+            <tr ng-class="{'selecionado negrito': cliente.selecionado}" ng-repeat="cliente in clientes">
+                <td><input type="checkbox" ng-model="cliente.selecionado"></td>
+                <td>{{cliente.nome}}</td>
+                <td>{{cliente.cpfCnpj}}</td>
+                <td>{{getTelefone(cliente)}}</td>
+                <td>{{getEndereco(cliente)}}</td>
+            </tr>
+        </table>
+        <hr>
+    </div>
+
+</div>
+<div style="text-align: center;">
+    Criado por Karine Jappe
+</div>
+
+</div>
